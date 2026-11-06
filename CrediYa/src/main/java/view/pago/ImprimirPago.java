@@ -1,13 +1,14 @@
 package view.pago;
 
-/**
- * ImprimirPago  (se completa en la Fase 6)
- *
- * Muestra uno o varios pagos.
- *
- * Usa:      Pago
- * La usan:  PagoController, PortalClienteController
- */
+import java.util.List;
+import java.util.function.Consumer;
+import model.Pago;
+
 public class ImprimirPago {
 
+    public Consumer<Pago> entidad = p -> System.out.println(p);
+
+    public void lista(List<Pago> pagos) {
+        pagos.forEach(entidad);
+    }
 }

@@ -1,13 +1,14 @@
 package view.cliente;
 
-/**
- * ImprimirCliente  (se completa en la Fase 6)
- *
- * Muestra uno o varios clientes.
- *
- * Usa:      Cliente
- * La usan:  ClienteController, PrestamoController, PortalClienteController
- */
+import java.util.List;
+import java.util.function.Consumer;
+import model.Cliente;
+
 public class ImprimirCliente {
 
+    public Consumer<Cliente> entidad = c -> System.out.println(c);
+
+    public void lista(List<Cliente> clientes) {
+        clientes.forEach(entidad);
+    }
 }

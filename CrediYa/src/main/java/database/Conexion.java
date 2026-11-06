@@ -1,14 +1,28 @@
 package database;
 
-/**
- * Conexion  (se completa en la Fase 5)
- *
- * Datos de conexion a MySQL (url, usuario, clave) y metodo para abrir la conexion.
- * Patron SINGLETON: una sola instancia para toda la aplicacion.
- *
- * Usa:      DriverManager de Java + mysql-connector-j (pom.xml)
- * La usan:  Todos los DAO
- */
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
 public class Conexion {
 
+    private static Conexion instancia;
+
+    private final String url = "jdbc:mysql://localhost:3306/crediya_db";
+    private final String user = "root";
+    private final String password = "crediya123";
+
+    private Conexion() {
+    }
+
+    public static Conexion getInstance() {
+        if (instancia == null) {
+            instancia = new Conexion();
+        }
+        return instancia;
+    }
+
+    public Connection conectar() throws SQLException {
+        return DriverManager.getConnection(url, user, password);
+    }
 }

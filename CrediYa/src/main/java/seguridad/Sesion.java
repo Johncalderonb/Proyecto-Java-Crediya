@@ -1,14 +1,36 @@
 package seguridad;
 
-/**
- * Sesion  (se completa en la Fase 7)
- *
- * Recuerda QUIEN inicio sesion (una Persona: Empleado o Cliente).
- * Patron SINGLETON: una sola sesion en todo el programa.
- *
- * Usa:      Persona
- * La usan:  LoginController, ControllerGeneral (nombre en el menu), EmpleadoController (no borrarse a si mismo)
- */
+import model.Persona;
+
 public class Sesion {
 
+    private static Sesion instancia;
+    private Persona usuario;
+
+    private Sesion() {
+    }
+
+    public static Sesion getInstance() {
+        if (instancia == null) {
+            instancia = new Sesion();
+        }
+        return instancia;
+    }
+
+    public void iniciar(Persona persona) {
+        usuario = persona;
+    }
+
+    public void cerrar() {
+        usuario = null;
+    }
+
+    public Persona getUsuario() {
+        return usuario;
+    }
+
+    public boolean esUsuarioActual(Persona persona) {
+        return usuario != null && usuario.getId() == persona.getId()
+                && usuario.tipoPersona().equals(persona.tipoPersona());
+    }
 }

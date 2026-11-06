@@ -1,13 +1,31 @@
 package view.informe;
 
-/**
- * MenuInforme  (se completa en la Fase 8)
- *
- * Opciones del modulo informes, confirmacion para guardar y numero de reporte.
- *
- * Usa:      Validaciones
- * La usan:  InformeController
- */
+import view.Validaciones;
+
 public class MenuInforme {
 
+    private final Validaciones v = new Validaciones();
+
+    public int menu() {
+        return v.validarEntero("""
+                               ========= MODULO INFORMES =========
+                               1- Prestamos activos.
+                               2- Prestamos vencidos.
+                               3- Clientes morosos.
+                               4- Resumen de cartera por estado.
+                               5- Gestion por empleado.
+                               6- Top 5 clientes con mayor deuda.
+                               7- Directorio general (empleados y clientes).
+                               8- Ver reportes guardados en archivo.
+                               9- Regresar.
+                               """);
+    }
+
+    public boolean deseaGuardar() {
+        return v.confirmar("¿Desea guardar este reporte en el archivo?");
+    }
+
+    public int pedirIdReporte() {
+        return v.validarEntero("Ingrese el numero del reporte que desea ver (0 = volver):");
+    }
 }

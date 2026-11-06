@@ -1,13 +1,20 @@
 package view.informe;
 
-/**
- * ImprimirInforme  (se completa en la Fase 8)
- *
- * Muestra un reporte completo y el indice de reportes guardados.
- *
- * Usa:      Reporte
- * La usan:  InformeController
- */
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import model.Reporte;
+
 public class ImprimirInforme {
 
+    public Function<Reporte, String> aIndice = r -> "#%-4d | %s | %s (%d registros)"
+            .formatted(r.getId(), r.getFechaGeneracion(), r.getTitulo(), r.getLineas().size());
+
+    public Consumer<Reporte> mostrar = r -> System.out.println(r);
+
+    public void indice(List<Reporte> reportes) {
+        System.out.println("======== REPORTES GUARDADOS ========");
+        reportes.forEach(r -> System.out.println(aIndice.apply(r)));
+        System.out.println("====================================");
+    }
 }

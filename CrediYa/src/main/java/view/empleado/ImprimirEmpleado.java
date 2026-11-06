@@ -1,13 +1,14 @@
 package view.empleado;
 
-/**
- * ImprimirEmpleado  (se completa en la Fase 6)
- *
- * Muestra uno o varios empleados (Consumer / forEach).
- *
- * Usa:      Empleado
- * La usan:  EmpleadoController, PrestamoController
- */
+import java.util.List;
+import java.util.function.Consumer;
+import model.Empleado;
+
 public class ImprimirEmpleado {
 
+    public Consumer<Empleado> entidad = e -> System.out.println(e);
+
+    public void lista(List<Empleado> empleados) {
+        empleados.forEach(entidad);
+    }
 }

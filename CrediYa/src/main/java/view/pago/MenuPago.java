@@ -1,13 +1,18 @@
 package view.pago;
 
-/**
- * MenuPago  (se completa en la Fase 6)
- *
- * Opciones del modulo pagos.
- *
- * Usa:      Validaciones
- * La usan:  PagoController
- */
+import view.Validaciones;
+
 public class MenuPago {
 
+    private final Validaciones v = new Validaciones();
+
+    public int menu() {
+        return v.validarEntero("""
+                               ========= MODULO PAGOS =========
+                               1- Registrar abono a un prestamo.
+                               2- Historial de pagos de un prestamo.
+                               3- Listar todos los pagos.
+                               4- Regresar.
+                               """);
+    }
 }

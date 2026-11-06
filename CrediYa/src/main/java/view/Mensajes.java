@@ -1,13 +1,28 @@
 package view;
 
-/**
- * Mensajes  (se completa en la Fase 6)
- *
- * Formato unico para mensajes de exito, informativos y de error.
- *
- * Usa:      Nada
- * La usan:  Todos los Controller
- */
 public class Mensajes {
 
+    public void exito(String mensaje) {
+        System.out.println("""
+                           ******************************
+                           -------- Proceso Exitoso! --------
+                           %s
+                           ----------------------------------
+                           """.formatted(mensaje));
+    }
+
+    public void informativo(String mensaje) {
+        System.out.println("---------------------------");
+        System.out.println(mensaje);
+        System.out.println("---------------------------");
+    }
+
+    public void error(String mensaje) {
+        System.out.println("""
+                           ******************************
+                           -------- Error! --------
+                           %s
+                           ------------------------
+                           """.formatted(mensaje));
+    }
 }

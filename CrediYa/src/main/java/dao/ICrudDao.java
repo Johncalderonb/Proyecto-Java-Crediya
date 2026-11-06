@@ -1,13 +1,12 @@
 package dao;
 
-/**
- * ICrudDao  (se completa en la Fase 5)
- *
- * CONTRATO completo: buscar y listar (heredados) + agregar, actualizar y eliminar.
- *
- * Usa:      IConsultaDao (lo extiende), CrediYaException
- * La usan:  EmpleadoDao, ClienteDao (lo implementan)
- */
+import exception.CrediYaException;
+
 public interface ICrudDao<T> extends IConsultaDao<T> {
 
+    T agregar(T entidad) throws CrediYaException;
+
+    boolean actualizar(T entidad) throws CrediYaException;
+
+    boolean eliminar(T entidad) throws CrediYaException;
 }
