@@ -1,4 +1,4 @@
-package com.k4.crediya;
+package com.john.crediya;
 
 public class CrediYa {
 
