@@ -1,6 +1,7 @@
 package controller;
 
 import archivo.ArchivoReportes;
+import archivo.ExportadorArchivos;
 import dao.ClienteDao;
 import dao.EmpleadoDao;
 import dao.PrestamoDao;
@@ -18,6 +19,7 @@ import model.Persona;
 import model.Prestamo;
 import model.Reporte;
 import view.Mensajes;
+import view.informe.CuadroIndicadores;
 import view.informe.ImprimirInforme;
 import view.informe.MenuInforme;
 
@@ -29,6 +31,7 @@ public class InformeController {
     private final EmpleadoDao empleadoDao = new EmpleadoDao();
     private final ClienteDao clienteDao = new ClienteDao();
     private final ArchivoReportes archivo = new ArchivoReportes();
+    private final ExportadorArchivos exportador = new ExportadorArchivos();
     private final Mensajes mensajes = new Mensajes();
 
     public Predicate<Prestamo> activo = p -> p.getEstado() == EstadoPrestamo.PENDIENTE;
@@ -42,7 +45,30 @@ public class InformeController {
         return String.format("%,.0f", valor);
     }
 
+    private String indicadores() throws CrediYaException {
+        List<Prestamo> prestamos = prestamoDao.listar();
+        long activos = prestamos.stream().filter(activo).count();
+        double cartera = prestamos.stream().filter(activo).mapToDouble(Prestamo::getSaldo).sum();
+        long clientesEnMora = prestamos.stream()
+                .filter(atrasado)
+                .map(p -> p.getCliente().getId())
+                .distinct()
+                .count();
+        long vencidos = prestamos.stream().filter(vencido).count();
+        double recaudado = prestamos.stream().mapToDouble(Prestamo::getTotalPagado).sum();
+        long pagados = prestamos.stream().filter(activo.negate()).count();
+        return new CuadroIndicadores()
+                .agregar("Prestamos activos", String.valueOf(activos))
+                .agregar("Cartera pendiente", "$" + dinero(cartera))
+                .agregar("Clientes en mora", String.valueOf(clientesEnMora))
+                .agregar("Prestamos vencidos", String.valueOf(vencidos))
+                .agregar("Total recaudado", "$" + dinero(recaudado))
+                .agregar("Prestamos pagados", String.valueOf(pagados))
+                .construir();
+    }
+
     private void presentar(Reporte reporte) throws CrediYaException {
+        reporte.setIndicadores(indicadores());
         imprimir.mostrar.accept(reporte);
         if (menu.deseaGuardar()) {
             archivo.agregar(reporte);
@@ -183,6 +209,35 @@ public class InformeController {
         }
     }
 
+    private void exportarTxt() throws CrediYaException {
+        List<Reporte> reportes = archivo.listar();
+        if (reportes.isEmpty()) {
+            mensajes.informativo("Primero guarde un reporte (opciones 1 a 7) para poder exportarlo");
+            return;
+        }
+        imprimir.indice(reportes);
+        int id = menu.pedirIdExportar();
+        if (id == 0) {
+            return;
+        }
+        Reporte r = archivo.buscar(id);
+        if (r == null) {
+            throw new CrediYaException("No existe un reporte con ese numero");
+        }
+        String ruta = exportador.exportarTxt(r);
+        mensajes.exito("Reporte exportado. Abralo con el Bloc de notas:\n" + ruta);
+    }
+
+    private void exportarCsv() throws CrediYaException {
+        List<Prestamo> prestamos = prestamoDao.listar();
+        if (prestamos.isEmpty()) {
+            mensajes.informativo("No hay prestamos para exportar");
+            return;
+        }
+        String ruta = exportador.exportarCsv(prestamos);
+        mensajes.exito("Se exportaron " + prestamos.size() + " prestamos. Abra el archivo con Excel:\n" + ruta);
+    }
+
     public void menu() {
         int op;
         do {
@@ -197,12 +252,14 @@ public class InformeController {
                     case 6 -> topDeudores();
                     case 7 -> directorioGeneral();
                     case 8 -> verGuardados();
-                    case 9 -> mensajes.informativo("Regresando al menu principal...");
+                    case 9 -> exportarTxt();
+                    case 10 -> exportarCsv();
+                    case 11 -> mensajes.informativo("Regresando al menu principal...");
                     default -> mensajes.error("La opcion esta fuera de rango");
                 }
             } catch (CrediYaException e) {
                 mensajes.error(e.getMessage());
             }
-        } while (op != 9);
+        } while (op != 11);
     }
 }

@@ -15,6 +15,7 @@ public class Reporte implements Serializable {
     private String fechaGeneracion;
     private List<String> lineas = new ArrayList<>();
     private String resumen;
+    private String indicadores = "";
 
     public Reporte(String titulo) {
         this.titulo = titulo;
@@ -38,6 +39,11 @@ public class Reporte implements Serializable {
         sb.append("  ").append(id > 0 ? "Reporte #" + id : "Reporte sin guardar")
                 .append(" | Generado: ").append(fechaGeneracion).append("\n");
         sb.append("==================================================================\n");
+        if (indicadores != null && !indicadores.isBlank()) {
+            for (String linea : indicadores.split("\n")) {
+                sb.append("  ").append(linea).append("\n");
+            }
+        }
         if (lineas.isEmpty()) {
             sb.append("  Sin resultados para este reporte\n");
         }
@@ -48,6 +54,14 @@ public class Reporte implements Serializable {
         sb.append("  ").append(resumen).append("\n");
         sb.append("==================================================================\n");
         return sb.toString();
+    }
+
+    public String getIndicadores() {
+        return indicadores;
+    }
+
+    public void setIndicadores(String indicadores) {
+        this.indicadores = indicadores;
     }
 
     public int getId() {

@@ -95,7 +95,7 @@ public class EmpleadoController {
         if (sesion.esUsuarioActual(e)) {
             throw new CrediYaException("No puede eliminar su propio usuario mientras tiene la sesion abierta");
         }
-        if (ingreso.confirmar("¿Esta seguro de eliminar a " + e.getNombre() + "?")) {
+        if (ingreso.confirmar("Esta seguro de eliminar a " + e.getNombre() + "?")) {
             dao.eliminar(e);
             mensajes.exito("Empleado eliminado correctamente");
         } else {

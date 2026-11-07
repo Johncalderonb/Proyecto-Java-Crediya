@@ -2,3 +2,4 @@ target/
 *.dat
 nbactions.xml
 nbproject/private/
+exportados/

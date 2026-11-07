@@ -2,6 +2,7 @@ package controller;
 
 import dao.ClienteDao;
 import dao.EmpleadoDao;
+import dao.PagoDao;
 import dao.PrestamoDao;
 import exception.CrediYaException;
 import java.time.LocalDate;
@@ -27,6 +28,7 @@ public class PrestamoController {
     private final PrestamoDao dao = new PrestamoDao();
     private final ClienteDao clienteDao = new ClienteDao();
     private final EmpleadoDao empleadoDao = new EmpleadoDao();
+    private final PagoDao pagoDao = new PagoDao();
     private final Mensajes mensajes = new Mensajes();
 
     private Cliente pedirCliente() throws CrediYaException {
@@ -71,9 +73,8 @@ public class PrestamoController {
         LocalDate fechaInicio = ingreso.pedirFechaInicio();
 
         Prestamo p = new Prestamo(cliente, empleado, monto, interes, cuotas, fechaInicio);
-        mensajes.informativo("Vista previa del prestamo");
-        imprimir.detalle.accept(p);
-        if (!ingreso.confirmar("¿Desea registrar este prestamo?")) {
+        imprimir.tirilla(p, List.of());
+        if (!ingreso.confirmar("Desea registrar este prestamo?")) {
             mensajes.informativo("Prestamo cancelado");
             return;
         }
@@ -103,10 +104,7 @@ public class PrestamoController {
     private void buscar() throws CrediYaException {
         mensajes.informativo("=========== Detalle de prestamo ===========");
         Prestamo p = buscarExistente();
-        imprimir.detalle.accept(p);
-        if (p.estaAtrasado()) {
-            mensajes.error("Prestamo con atraso. Valor en mora: $" + String.format("%,.0f", p.valorEnMora()));
-        }
+        imprimir.tirilla(p, pagoDao.listarPorPrestamo(p.getId()));
     }
 
     private void cambiarEstado() throws CrediYaException {
@@ -117,7 +115,7 @@ public class PrestamoController {
         Prestamo p = buscarExistente();
         EstadoPrestamo nuevo = ingreso.pedirEstado();
         if (nuevo == EstadoPrestamo.PAGADO && p.getSaldo() > 0) {
-            String aviso = "El prestamo aun tiene saldo de $%s. ¿Marcarlo como PAGADO y dejar el saldo en 0?"
+            String aviso = "El prestamo aun tiene saldo de $%s. Marcarlo como PAGADO y dejar el saldo en 0?"
                     .formatted(String.format("%,.0f", p.getSaldo()));
             if (!ingreso.confirmar(aviso)) {
                 mensajes.informativo("Cambio cancelado");
@@ -127,6 +125,7 @@ public class PrestamoController {
         p.cambiarEstado(nuevo);
         dao.actualizarEstadoYSaldo(p);
         mensajes.exito("Prestamo #" + p.getId() + " ahora esta " + p.getEstado());
+        imprimir.tirilla(p, pagoDao.listarPorPrestamo(p.getId()));
     }
 
     public void menu() {

@@ -58,11 +58,7 @@ public class PortalClienteController {
             mensajes.informativo("Aun no tiene prestamos registrados");
             return false;
         }
-        imprimirPrestamo.lista(prestamos);
-        double deuda = prestamos.stream().mapToDouble(Prestamo::getSaldo).sum();
-        double mora = prestamos.stream().mapToDouble(Prestamo::valorEnMora).sum();
-        mensajes.informativo("Deuda total: $%s | Valor en mora: $%s".formatted(
-                String.format("%,.0f", deuda), String.format("%,.0f", mora)));
+        imprimirPrestamo.lista(prestamos, "MIS PRESTAMOS");
         return true;
     }
 
@@ -71,17 +67,7 @@ public class PortalClienteController {
             return;
         }
         Prestamo p = pedirMiPrestamo();
-        imprimirPrestamo.detalle.accept(p);
-        if (p.estaAtrasado()) {
-            mensajes.error("Tiene cuotas atrasadas. Valor en mora: $" + String.format("%,.0f", p.valorEnMora()));
-        }
-        List<Pago> pagos = pagoDao.listarPorPrestamo(p.getId());
-        if (pagos.isEmpty()) {
-            mensajes.informativo("Este prestamo no tiene pagos registrados");
-        } else {
-            mensajes.informativo("Historial de pagos");
-            imprimirPago.lista(pagos);
-        }
+        imprimirPrestamo.tirilla(p, pagoDao.listarPorPrestamo(p.getId()));
     }
 
     private void realizarAbono() throws CrediYaException {
@@ -92,16 +78,12 @@ public class PortalClienteController {
             mensajes.informativo("No tiene prestamos pendientes por pagar");
             return;
         }
-        imprimirPrestamo.lista(pendientes);
+        imprimirPrestamo.lista(pendientes, "PRESTAMOS POR PAGAR");
         Prestamo prestamo = pedirMiPrestamo();
         double valor = ingresoPago.pedirMonto();
         prestamo.registrarAbono(valor);
         Pago pago = pagoDao.registrar(new Pago(prestamo.getId(), LocalDate.now(), valor), prestamo);
-        mensajes.exito("""
-                       Abono #%d registrado
-                       Saldo pendiente: $%s
-                       Estado del prestamo: %s""".formatted(pago.getId(),
-                String.format("%,.0f", prestamo.getSaldo()), prestamo.getEstado()));
+        imprimirPago.recibo(pago, prestamo);
     }
 
     private void cambiarClave() throws CrediYaException {

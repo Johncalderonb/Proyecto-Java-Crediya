@@ -88,7 +88,7 @@ public class ClienteController {
             return;
         }
         Cliente c = buscarExistente();
-        if (ingreso.confirmar("¿Esta seguro de eliminar a " + c.getNombre() + "?")) {
+        if (ingreso.confirmar("Esta seguro de eliminar a " + c.getNombre() + "?")) {
             dao.eliminar(c);
             mensajes.exito("Cliente eliminado correctamente");
         } else {
@@ -109,10 +109,7 @@ public class ClienteController {
             mensajes.informativo(c.getNombre() + " no tiene prestamos registrados");
             return;
         }
-        imprimirPrestamo.lista(prestamos);
-        double deudaTotal = prestamos.stream().mapToDouble(Prestamo::getSaldo).sum();
-        mensajes.informativo("Cliente: %s | Prestamos: %d | Deuda total: $%s"
-                .formatted(c.getNombre(), prestamos.size(), String.format("%,.0f", deudaTotal)));
+        imprimirPrestamo.lista(prestamos, "PRESTAMOS DE " + c.getNombre().toUpperCase());
     }
 
     public void menu() {

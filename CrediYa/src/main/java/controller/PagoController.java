@@ -41,7 +41,7 @@ public class PagoController {
             mensajes.informativo("No hay prestamos pendientes por pagar");
             return;
         }
-        imprimirPrestamo.lista(pendientes);
+        imprimirPrestamo.lista(pendientes, "PRESTAMOS PENDIENTES");
         Prestamo prestamo = pedirPrestamo();
         double valor = ingreso.pedirMonto();
         LocalDate fecha = ingreso.pedirFecha();
@@ -51,26 +51,14 @@ public class PagoController {
         }
         prestamo.registrarAbono(valor);
         Pago pago = dao.registrar(new Pago(prestamo.getId(), fecha, valor), prestamo);
-        mensajes.exito("""
-                       Pago #%d registrado
-                       Saldo pendiente: $%s
-                       Estado del prestamo: %s""".formatted(pago.getId(),
-                String.format("%,.0f", prestamo.getSaldo()), prestamo.getEstado()));
+        imprimir.recibo(pago, prestamo);
     }
 
     private void historial() throws CrediYaException {
         mensajes.informativo("=========== Historial de pagos ===========");
         Prestamo prestamo = pedirPrestamo();
         List<Pago> pagos = dao.listarPorPrestamo(prestamo.getId());
-        imprimirPrestamo.fila.accept(prestamo);
-        if (pagos.isEmpty()) {
-            mensajes.informativo("El prestamo no tiene pagos registrados");
-            return;
-        }
-        imprimir.lista(pagos);
-        mensajes.informativo("Pagos: %d | Total abonado: $%s | Saldo: $%s".formatted(pagos.size(),
-                String.format("%,.0f", pagos.stream().mapToDouble(Pago::getMonto).sum()),
-                String.format("%,.0f", prestamo.getSaldo())));
+        imprimirPrestamo.tirilla(prestamo, pagos);
     }
 
     private void listarTodos() throws CrediYaException {
